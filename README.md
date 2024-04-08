@@ -21,7 +21,7 @@ This Flask web application provides translation services between multiple langua
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/your-repo-name.git
+    git clone https://github.com/ohayone1/oh-translate.git
     ```
 
 2. Install the required Python packages:

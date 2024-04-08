@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Translate and Convert Text to Speech</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #555;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #007bff;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .tab {
+            overflow: hidden;
+            border-bottom: 2px solid #007bff;
+            background-color: #f1f1f1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .tab button {
+            background-color: inherit;
+            border: none;
+            outline: none;
+            cursor: pointer;
+            padding: 14px 20px;
+            transition: 0.3s;
+            font-size: 18px;
+            margin: 0 15px;
+            border-radius: 5px;
+            border-bottom: 2px solid transparent;
+        }
+
+        .tab button:hover {
+            background-color: #ddd;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .tab button.active {
+            background-color: #007bff;
+            color: white;
+            border-bottom: 2px solid #007bff;
+        }
+
+        .tabcontent {
+            display: none;
+            padding: 30px;
+            border: 1px solid #ccc;
+            border-top: none;
+            border-radius: 0 0 5px 5px;
+        }
+
+        label {
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        textarea,
+        select,
+        input[type="file"] {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            font-size: 16px;
+        }
+
+        input[type="button"] {
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        input[type="button"]:hover {
+            background-color: #0056b3;
+        }
+
+        .translation-result {
+            margin-top: 30px;
+            border: 1px solid #ccc;
+            padding: 30px;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+
+        .translation-result h3 {
+            color: #007bff;
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .translation-result p {
+            margin: 15px 0;
+            font-size: 16px;
+        }
+
+        audio {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .download-btn {
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            margin-top: 20px;
+        }
+
+        .download-btn:hover {
+            background-color: #218838;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <h1>Translate and Convert Text to Speech</h1>
+
+    <div class="tab">
+        <button class="tablinks" onclick="openPage(event, 'Translate')">Translate and Convert Text</button>
+        <button class="tablinks" onclick="openPage(event, 'Upload')">Upload a File</button>
+    </div>
+
+    <!-- Translate Tab -->
+    <div id="Translate" class="tabcontent">
+        <form id="translationForm">
+            <label for="text">Text to Translate:</label><br>
+            <textarea id="text" name="text" rows="6" placeholder="Enter the text you want to translate..."></textarea><br>
+
+            <label for="from_lang">Source Language:</label><br>
+            <select id="from_lang" name="from_lang">
+                <!-- Options will be populated by JavaScript -->
+            </select><br>
+
+            <label for="to_lang">Target Language:</label><br>
+            <select id="to_lang" name="to_lang">
+                <!-- Options will be populated by JavaScript -->
+            </select><br><br>
+
+            <input type="button" value="Translate and Convert to Speech" onclick="translateText()">
+        </form>
+
+        <div class="translation-result" id="translationResult" style="display:none;">
+            <h3>Translation Result:</h3>
+            <p><strong>Original Text:</strong> <span id="originalText"></span></p>
+            <p><strong>Translated Text:</strong> <span id="translatedText"></span></p>
+            <p><strong>Source Language:</strong> <span id="fromLang"></span></p>
+            <p><strong>Target Language:</strong> <span id="toLang"></span></p>
+            <audio controls id="audioPlayer" style="margin-top:15px;">
+                Your browser does not support audio playback.
+            </audio>
+            <button class="download-btn" id="downloadTranslatedTxt" style="display:none;" onclick="downloadTranslatedTxt()">Download Translated Text</button>
+        </div>
+    </div>
+
+    <!-- Upload Tab -->
+    <div id="Upload" class="tabcontent">
+        <form action="/upload" method="post" enctype="multipart/form-data" id="fileForm">
+            <label for="file">Choose a file to upload:</label><br>
+            <input type="file" name="file" id="file" accept=".txt, .png"><br>
+
+            <label for="to_lang1">Target Language:</label><br>
+            <select id="to_lang1" name="to_lang">
+                <!-- Options will be populated by JavaScript -->
+            </select><br><br>
+
+            <input type="button" value="Upload and Translate" onclick="uploadFile()">
+        </form>
+
+        <div class="translation-result" id="fileTranslationResult" style="display:none;">
+            <h3>Translation Result from File:</h3>
+            <p><strong>Original Text:</strong> <span id="fileOriginalText"></span></p>
+            <p><strong>Translated Text:</strong> <span id="fileTranslatedText"></span></p>
+            <audio controls id="fileAudioPlayer" style="margin-top:15px;">
+                Your browser does not support audio playback.
+            </audio>
+            <button class="download-btn" id="downloadFileTranslatedTxt" style="display:none;" onclick="downloadFileTranslatedTxt()">Download Translated Text</button>
+        </div>
+    </div>
+
+    <script>
+        // Open the default tab
+        document.getElementsByClassName("tablinks")[0].click();
+
+        function openPage(evt, pageName) {
+            var i, tabcontent, tablinks;
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+            document.getElementById(pageName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        // Populate dropdowns with languages
+        async function populateLanguages() {
+            const response = await fetch('/languages');
+            const data = await response.json();
+
+            const fromLangSelect = document.getElementById('from_lang');
+            const toLangSelect = document.getElementById('to_lang');
+            const toLangSelect1 = document.getElementById('to_lang1');
+
+            for (const [key, value] of Object.entries(data.languages)) {
+                const option = document.createElement('option');
+                option.value = key;
+                option.text = `${value} (${key})`;
+                fromLangSelect.appendChild(option);
+
+                const option2 = document.createElement('option');
+                option2.value = key;
+                option2.text = `${value} (${key})`;
+                toLangSelect.appendChild(option2);
+
+                const option3 = document.createElement('option');
+                option3.value = key;
+                option3.text = `${value} (${key})`;
+                toLangSelect1.appendChild(option3);
+            }
+        }
+
+        async function translateText() {
+            const text = document.getElementById('text').value;
+            const fromLang = document.getElementById('from_lang').value;
+            const toLang = document.getElementById('to_lang').value;
+
+            const response = await fetch(`/translate?text=${encodeURIComponent(text)}&from_lang=${encodeURIComponent(fromLang)}&to_lang=${encodeURIComponent(toLang)}`);
+
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            document.getElementById('originalText').textContent = data.original_text;
+            document.getElementById('translatedText').textContent = data.translated_text;
+            document.getElementById('fromLang').textContent = data.from_lang;
+            document.getElementById('toLang').textContent = data.to_lang;
+
+            const audioPlayer = document.getElementById('audioPlayer');
+            audioPlayer.src = `/get_audio`;
+            audioPlayer.style.display = 'block';
+
+            const translationResult = document.getElementById('translationResult');
+            translationResult.style.display = 'block';
+
+            // Display download button
+            const downloadBtn = document.getElementById('downloadTranslatedTxt');
+            downloadBtn.style.display = 'block';
+            downloadBtn.setAttribute('data-text', data.translated_text);
+        }
+
+        async function uploadFile() {
+            const fileInput = document.getElementById('file');
+            const to = document.getElementById('to_lang1').value;
+            const file = fileInput.files[0];
+
+            if (!file) {
+                alert('Please select a file to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('to_lang', to);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                return;
+            }
+
+            document.getElementById('fileOriginalText').textContent = data.original_text;
+            document.getElementById('fileTranslatedText').textContent = data.translated_text;
+            document.getElementById('fileAudioPlayer').src = `/get_audio`;
+
+            const fileTranslationResult = document.getElementById('fileTranslationResult');
+            fileTranslationResult.style.display = 'block';
+
+            // Display download button
+            const downloadBtn = document.getElementById('downloadFileTranslatedTxt');
+            downloadBtn.style.display = 'block';
+            downloadBtn.setAttribute('data-text', data.translated_text);
+        }
+
+        function downloadTranslatedTxt() {
+            const translatedText = document.getElementById('downloadTranslatedTxt').getAttribute('data-text');
+            const blob = new Blob([translatedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'translated_text.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        function downloadFileTranslatedTxt() {
+            const translatedText = document.getElementById('downloadFileTranslatedTxt').getAttribute('data-text');
+            const blob = new Blob([translatedText], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.style.display = 'none';
+            a.href = url;
+            a.download = 'translated_file_text.txt';
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+        }
+
+        populateLanguages();
+    </script>
+
+</body>
+
+</html>
